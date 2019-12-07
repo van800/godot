@@ -9,40 +9,47 @@ namespace GodotTools.Rider
 {
   public static class RiderPathManager
   {
+    private static readonly string editorPathSettingName= "mono/editor/editor_path_optional";
+
     private static string GetRiderPathFromSettings()
     {
       var editorSettings = GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
-      return (string) editorSettings.GetSetting("mono/editor/rider_path");
+      if (editorSettings.HasSetting(editorPathSettingName)) 
+        return (string) editorSettings.GetSetting(editorPathSettingName);
+      return null;
     }
     
     public static void Initialize()
     {
       var editorSettings = GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
-      editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
-      {
-        ["type"] = Variant.Type.String,
-        ["name"] = "mono/editor/rider_path",
-        ["hint"] = PropertyHint.File,
-        ["hint_string"] = ""
-      });
-
       var editor = (ExternalEditorId) editorSettings.GetSetting("mono/editor/external_editor");
-
       if (editor == ExternalEditorId.Rider)
       {
-        var riderPath = (string) editorSettings.GetSetting("mono/editor/rider_path");
+        if (!editorSettings.HasSetting(editorPathSettingName))
+        {
+          Globals.EditorDef(editorPathSettingName, "Optional");
+          editorSettings.AddPropertyInfo(new Godot.Collections.Dictionary
+          {
+            ["type"] = Variant.Type.String,
+            ["name"] = editorPathSettingName,
+            ["hint"] = PropertyHint.File,
+            ["hint_string"] = ""
+          });
+        }
+
+        var riderPath = (string) editorSettings.GetSetting(editorPathSettingName);
         if (IsRiderAndExists(riderPath))
         {
-          Globals.EditorDef("mono/editor/rider_path", riderPath);
+          Globals.EditorDef(editorPathSettingName, riderPath);
           return;
         }
-        
+
         var paths = RiderPathLocator.GetAllRiderPaths();
 
         if (!paths.Any())
           return;
 
-        Globals.EditorDef("mono/editor/rider_path", paths.Last().Path);
+        Globals.EditorDef(editorPathSettingName, paths.Last().Path);
       }
     }
 
@@ -72,8 +79,8 @@ namespace GodotTools.Rider
         return null;
         
       var newPath = paths.Last().Path;
-      editorSettings.SetSetting("mono/editor/rider_path", newPath);
-      Globals.EditorDef("mono/editor/rider_path", newPath);
+      editorSettings.SetSetting(editorPathSettingName, newPath);
+      Globals.EditorDef(editorPathSettingName, newPath);
       return newPath;
     }
 
