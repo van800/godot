@@ -49,7 +49,9 @@ namespace GodotTools.Rider
         if (!paths.Any())
           return;
 
-        Globals.EditorDef(editorPathSettingName, paths.Last().Path);
+        var newPath = paths.Last().Path;
+        Globals.EditorDef(editorPathSettingName, newPath);
+        editorSettings.SetSetting(editorPathSettingName, newPath);
       }
     }
 
