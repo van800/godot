@@ -152,9 +152,14 @@ void gd_mono_debug_init() {
 				",embedding=1,server=y,suspend=" + (da_suspend ? "y,timeout=" + itos(da_timeout) : "n"))
 						  .utf8();
 	}
+#elif DEBUG_ENABLED // Default debug agent for exported games. Exported games don't use the project settings to setup the debugger agent
+	if (da_args.length() == 0) {
+		da_args = String("--debugger-agent=transport=dt_socket,address=127.0.0.1:23685,embedding=1,server=y,suspend=n"))
+							  .utf8();
+	}
 #else
 	if (da_args.length() == 0)
-		return; // Exported games don't use the project settings to setup the debugger agent
+		return;
 #endif
 
 	// Debugging enabled
