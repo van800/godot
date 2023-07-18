@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Godot;
@@ -11,10 +10,12 @@ namespace GodotTools.Ides.Rider
     public static class RiderPathManager
     {
         private static readonly RiderPathLocator RiderPathLocator;
-
+        private static readonly RiderFileOpener RiderFileOpener;
         static RiderPathManager()
         {
-            RiderPathLocator = new RiderPathLocator(new RiderLocatorEnvironment());
+            var riderLocatorEnvironment = new RiderLocatorEnvironment();
+            RiderPathLocator = new RiderPathLocator(riderLocatorEnvironment);
+            RiderFileOpener = new RiderFileOpener(riderLocatorEnvironment);
         }
 
         public static readonly string EditorPathSettingName = "dotnet/editor/editor_path_optional";
@@ -46,7 +47,7 @@ namespace GodotTools.Ides.Rider
                 }
 
                 var riderPath = (string)editorSettings.GetSetting(EditorPathSettingName);
-                if (IsRiderAndExists(riderPath))
+                if (Exists(riderPath))
                 {
                     Globals.EditorDef(EditorPathSettingName, riderPath);
                     return;
@@ -61,12 +62,6 @@ namespace GodotTools.Ides.Rider
                 Globals.EditorDef(EditorPathSettingName, newPath);
                 editorSettings.SetSetting(EditorPathSettingName, newPath);
             }
-        }
-
-        public static bool IsExternalEditorSetToRider(EditorSettings editorSettings)
-        {
-            return editorSettings.HasSetting(EditorPathSettingName) &&
-                IsRider((string)editorSettings.GetSetting(EditorPathSettingName));
         }
 
         public static bool IsRider(string path)
@@ -84,49 +79,31 @@ namespace GodotTools.Ides.Rider
 
         private static string CheckAndUpdatePath(string riderPath)
         {
-            if (IsRiderAndExists(riderPath))
+            if (Exists(riderPath))
             {
                 return riderPath;
             }
 
+            var allInfos = RiderPathLocator.GetAllRiderPaths();
+            if (!allInfos.Any()) return null;
+            var riderInfos = allInfos.Where(info => IsRider(info.Path)).ToArray();
+            var newPath = riderInfos.Any() ? riderInfos.Last().Path : allInfos.Last().Path;
             var editorSettings = GodotSharpEditor.Instance.GetEditorInterface().GetEditorSettings();
-            var paths = RiderPathLocator.GetAllRiderPaths();
-
-            if (!paths.Any())
-                return null;
-
-            string newPath = paths.Last().Path;
             editorSettings.SetSetting(EditorPathSettingName, newPath);
             Globals.EditorDef(EditorPathSettingName, newPath);
             return newPath;
         }
 
-        private static bool IsRiderAndExists(string riderPath)
+        private static bool Exists(string path)
         {
-            return !string.IsNullOrEmpty(riderPath) && IsRider(riderPath) && new FileInfo(riderPath).Exists;
+            return !string.IsNullOrEmpty(path) && new FileInfo(path).Exists;
         }
 
-        public static void OpenFile(string slnPath, string scriptPath, int line)
+        public static void OpenFile(string slnPath, string scriptPath, int line, int column)
         {
             string pathFromSettings = GetRiderPathFromSettings();
             string path = CheckAndUpdatePath(pathFromSettings);
-
-            var args = new List<string>();
-            args.Add(slnPath);
-            if (line >= 0)
-            {
-                args.Add("--line");
-                args.Add((line + 1).ToString()); // https://github.com/JetBrains/godot-support/issues/61
-            }
-            args.Add(scriptPath);
-            try
-            {
-                Utils.OS.RunProcess(path, args);
-            }
-            catch (Exception e)
-            {
-                GD.PushError($"Error when trying to run code editor: JetBrains Rider. Exception message: '{e.Message}'");
-            }
+            RiderFileOpener.OpenFile(path, slnPath, scriptPath, line, column);
         }
     }
 }

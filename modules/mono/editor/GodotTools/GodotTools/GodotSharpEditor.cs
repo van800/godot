@@ -280,7 +280,7 @@ namespace GodotTools
                 case ExternalEditorId.Rider:
                 {
                     string scriptPath = ProjectSettings.GlobalizePath(script.ResourcePath);
-                    RiderPathManager.OpenFile(GodotSharpDirs.ProjectSlnPath, scriptPath, line);
+                    RiderPathManager.OpenFile(GodotSharpDirs.ProjectSlnPath, scriptPath, line, col);
                     return Error.Ok;
                 }
                 case ExternalEditorId.MonoDevelop:
