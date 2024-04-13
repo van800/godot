@@ -129,12 +129,20 @@ namespace GodotTools.IdeMessaging
             {
                 // Check if the non hidden version exists
                 string nonHiddenProjectMetadataDir = Path.Combine(godotProjectDir, "godot", "mono", "metadata");
+                string godot3ProjectMetadataDir = Path.Combine(godotProjectDir, ".mono", "metadata");
                 if (Directory.Exists(nonHiddenProjectMetadataDir))
                 {
                     projectMetadataDir = nonHiddenProjectMetadataDir;
                 }
+                else if (Directory.Exists(godot3ProjectMetadataDir))
+                {
+                    // when GodotTools.IdeMessaging nuget is used in IDE, attempt to support both Godot3 and Godot 4
+                    // Only Godot 4 is guaranteed though
+                    projectMetadataDir = godot3ProjectMetadataDir;
+                }
                 else
                 {
+                    // this is
                     Directory.CreateDirectory(projectMetadataDir);
                 }
             }
