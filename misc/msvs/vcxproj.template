@@ -10,7 +10,7 @@
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   %%PROPERTIES%%
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" Condition=" '$(OS)' == 'Windows_NT' "/>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
@@ -19,7 +19,7 @@
     <IntDir>obj\$(GodotPlatform)\$(GodotConfiguration)\</IntDir>
     <LayoutDir>$(OutDir)\Layout</LayoutDir>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition=" '$(OS)' == 'Windows_NT' "/>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
@@ -34,9 +34,20 @@
   <ItemGroup Condition="'$(IncludeListImported)'==''">
     %%DEFAULT_ITEMS%%
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition=" '$(OS)' == 'Windows_NT' " />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+
+  <Target Name="RunSCons" BeforeTargets="Build" Condition="'$(OS)' == 'Unix'">
+      <Exec Command="scons platform=macos vsproj=yes dev_build=yes"
+       StandardOutputImportance="High"
+       StandardErrorImportance="High" />
+  </Target>
+
+  <Target Name="Build">
+  		<Message Text="Building the project..." Importance="High" />
+  		<!-- Add your actual build commands here -->
+  	</Target>
 </Project>
 <!-- CHECKSUM
 %%HASH%%
