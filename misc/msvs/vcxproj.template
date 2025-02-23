@@ -14,7 +14,7 @@
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>Clang</PlatformToolset>
     <OutDir>$(SolutionDir)\bin\$(GodotPlatform)\$(GodotConfiguration)\</OutDir>
     <IntDir>obj\$(GodotPlatform)\$(GodotConfiguration)\</IntDir>
     <LayoutDir>$(OutDir)\Layout</LayoutDir>
@@ -31,6 +31,17 @@
     <ActiveProjectItemList></ActiveProjectItemList>
   </PropertyGroup>
   %%IMPORTS%%
+
+  	<ItemDefinitionGroup>
+  		<ClCompile>
+  <!--			<PrecompiledHeader>-->
+  <!--			</PrecompiledHeader>-->
+  			<AdditionalIncludeDirectories>
+  				%%MACOS_SDK_PATH%%;.;%(AdditionalIncludeDirectories)
+  			</AdditionalIncludeDirectories>
+  		</ClCompile>
+  	</ItemDefinitionGroup>
+
   <ItemGroup Condition="'$(IncludeListImported)'==''">
     %%DEFAULT_ITEMS%%
   </ItemGroup>
