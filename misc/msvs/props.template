@@ -7,7 +7,7 @@
     <NMakeOutput Condition="'$(NMakeOutput)' == ''">%%OUTPUT%%</NMakeOutput>
     <NMakePreprocessorDefinitions>%%DEFINES%%;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>%%INCLUDES%%;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
-    <NMakeForcedIncludes>$(NMakeForcedIncludes)</NMakeForcedIncludes>
+    <NMakeForcedIncludes>usr/include/_types/_uint64_t.h;$(NMakeForcedIncludes)</NMakeForcedIncludes>
     <NMakeAssemblySearchPath>$(NMakeAssemblySearchPath)</NMakeAssemblySearchPath>
     <NMakeForcedUsingAssemblies>$(NMakeForcedUsingAssemblies)</NMakeForcedUsingAssemblies>
     <AdditionalOptions>%%OPTIONS%% $(AdditionalOptions)</AdditionalOptions>
