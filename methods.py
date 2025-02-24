@@ -1389,6 +1389,10 @@ def generate_vs_project(env, original_args, project_name="godot"):
         proj_template = proj_template.replace("%%DEFAULT_ITEMS%%", "\n    ".join(all_items))
         proj_template = proj_template.replace("%%PROPERTIES%%", "\n  ".join(properties))
         proj_template = proj_template.replace("%%MACOS_SDK_PATH%%", os.path.expanduser(env["MACOS_SDK_PATH"]))
+        
+        proplist = [format_key_value(v) for v in list(env["CPPDEFINES"])]
+        proplist += [format_key_value(j) for j in env.get("VSHINT_DEFINES", [])]
+        proj_template = proj_template.replace("%%DEFINES%%", ";".join(proplist))
 
         with open(f"{project_name}.vcxproj", "w", encoding="utf-8", newline="\r\n") as f:
             f.write(proj_template)
