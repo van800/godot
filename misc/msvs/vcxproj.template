@@ -31,17 +31,6 @@
     <ActiveProjectItemList></ActiveProjectItemList>
   </PropertyGroup>
   %%IMPORTS%%
-
-  	<ItemDefinitionGroup>
-  		<ClCompile>
-  <!--			<PrecompiledHeader>-->
-  <!--			</PrecompiledHeader>-->
-  			<AdditionalIncludeDirectories>
-  				%%MACOS_SDK_PATH%%;.;%(AdditionalIncludeDirectories)
-  			</AdditionalIncludeDirectories>
-  		</ClCompile>
-  	</ItemDefinitionGroup>
-
   <ItemGroup Condition="'$(IncludeListImported)'==''">
     %%DEFAULT_ITEMS%%
   </ItemGroup>
@@ -59,6 +48,19 @@
   		<Message Text="Building the project..." Importance="High" />
   		<!-- Add your actual build commands here -->
   	</Target>
+  	
+  	<ItemDefinitionGroup>
+      		<ClCompile>
+      <!--			<PrecompiledHeader>-->
+      <!--			</PrecompiledHeader>-->
+      			<AdditionalIncludeDirectories>
+      				%%MACOS_SDK_PATH%%;.;%(AdditionalIncludeDirectories)
+      			</AdditionalIncludeDirectories>
+      			
+      			<PreprocessorDefinitions>%%DEFINES%%%(PreprocessorDefinitions)</PreprocessorDefinitions>
+                		
+      		</ClCompile>
+   </ItemDefinitionGroup>
 </Project>
 <!-- CHECKSUM
 %%HASH%%
