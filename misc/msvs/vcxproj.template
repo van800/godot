@@ -39,28 +39,32 @@
   </ImportGroup>
 
   <Target Name="RunSCons" BeforeTargets="Build" Condition="'$(OS)' == 'Unix'">
-      <Exec Command="scons platform=macos vsproj=yes dev_build=yes"
-       StandardOutputImportance="High"
-       StandardErrorImportance="High" />
+    <Exec Command="scons platform=macos vsproj=yes dev_build=yes"
+     StandardOutputImportance="High"
+     StandardErrorImportance="High" />
   </Target>
 
   <Target Name="Build">
-  		<Message Text="Building the project..." Importance="High" />
-  		<!-- Add your actual build commands here -->
-  	</Target>
-  	
+  	<Message Text="Building the project..." Importance="High" />
+  	<!-- Add your actual build commands here -->
+  </Target>
+
   	<ItemDefinitionGroup>
-      		<ClCompile>
-      <!--			<PrecompiledHeader>-->
-      <!--			</PrecompiledHeader>-->
-      			<AdditionalIncludeDirectories>
-      				%%MACOS_SDK_PATH%%;.;%(AdditionalIncludeDirectories)
-      			</AdditionalIncludeDirectories>
-      			
-      			<PreprocessorDefinitions>%%DEFINES%%%(PreprocessorDefinitions)</PreprocessorDefinitions>
-                		
-      		</ClCompile>
+    	<ClCompile>
+      		<AdditionalIncludeDirectories>
+      			%%INCLUDES%%;
+      			%(AdditionalIncludeDirectories)
+      		</AdditionalIncludeDirectories>
+      		<PreprocessorDefinitions>%%DEFINES%%%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      	</ClCompile>
    </ItemDefinitionGroup>
+
+<!--  <PropertyGroup>-->
+<!--       <StartAction>Program</StartAction>-->
+<!--       <StartProgram>%%StartProgram%%</StartProgram>-->
+<!--   &lt;!&ndash;    <StartArguments>optional</StartArguments>&ndash;&gt;-->
+<!--       <StartWorkingDirectory>./</StartWorkingDirectory>-->
+<!--  </PropertyGroup>-->
 </Project>
 <!-- CHECKSUM
 %%HASH%%

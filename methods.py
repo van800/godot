@@ -1388,8 +1388,17 @@ def generate_vs_project(env, original_args, project_name="godot"):
         proj_template = proj_template.replace("%%IMPORTS%%", "\n  ".join(imports))
         proj_template = proj_template.replace("%%DEFAULT_ITEMS%%", "\n    ".join(all_items))
         proj_template = proj_template.replace("%%PROPERTIES%%", "\n  ".join(properties))
-        proj_template = proj_template.replace("%%MACOS_SDK_PATH%%", os.path.expanduser(env["MACOS_SDK_PATH"]))
-        
+
+        proplist = [str(j) for j in env["CPPPATH"]]
+        proplist += [str(j) for j in env.get("VSHINT_INCLUDES", [])]
+        proplist += [os.path.expanduser(env["MACOS_SDK_PATH"])]
+        # todo:
+        # run: clang++ -x c++ -E -v -
+        # parse #include <...> search starts here:
+        # till End of search list.
+        # include those paths in here
+        proj_template = proj_template.replace("%%INCLUDES%%", ";".join(proplist))
+
         proplist = [format_key_value(v) for v in list(env["CPPDEFINES"])]
         proplist += [format_key_value(j) for j in env.get("VSHINT_DEFINES", [])]
         proj_template = proj_template.replace("%%DEFINES%%", ";".join(proplist))
