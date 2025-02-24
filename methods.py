@@ -1391,12 +1391,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
 
         proplist = [str(j) for j in env["CPPPATH"]]
         proplist += [str(j) for j in env.get("VSHINT_INCLUDES", [])]
-        proplist += [os.path.expanduser(env["MACOS_SDK_PATH"])]
-        # todo:
-        # run: clang++ -x c++ -E -v -
-        # parse #include <...> search starts here:
-        # till End of search list.
-        # include those paths in here
+        proplist += [str(j) for j in get_default_include_directories()]
         proj_template = proj_template.replace("%%INCLUDES%%", ";".join(proplist))
 
         proplist = [format_key_value(v) for v in list(env["CPPDEFINES"])]
@@ -1568,3 +1563,24 @@ def to_raw_cstring(value: Union[str, List[str]]) -> str:
         split += [segment]
 
     return " ".join(f'R"<!>({x.decode()})<!>"' for x in split)
+
+
+def get_default_include_directories():
+    output = subprocess.Popen(['clang++', '-x', 'c++', '-E', '-v', '-'],
+                              stdin=subprocess.DEVNULL,
+                              stdout=subprocess.DEVNULL,
+                              stderr=subprocess.PIPE)
+    stderr = output.stderr.read().decode()
+    start = False
+    paths = []
+    for line in stderr.split('\n'):
+        if not start:
+            if line == '#include <...> search starts here:':
+                start = True
+        elif start:
+            if line == 'End of search list.':
+                break
+            else:
+                paths.append(os.path.abspath(line[1:]))
+
+    return paths
