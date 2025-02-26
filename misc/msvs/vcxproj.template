@@ -38,33 +38,25 @@
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 
-  <Target Name="RunSCons" BeforeTargets="Build" Condition="'$(OS)' == 'Unix'">
-    <Exec Command="scons platform=macos vsproj=yes dev_build=yes"
-     StandardOutputImportance="High"
-     StandardErrorImportance="High" />
+  <Target Name="Build" Condition="'$(OS)' != 'Windows_NT'">
+    <Exec Command="scons vsproj=yes dev_build=yes"/>
+  </Target>
+  <Target Name="Rebuild" Condition="'$(OS)' != 'Windows_NT'">
+    <Exec Command="scons --no-cache vsproj=yes dev_build=yes"/>
+  </Target>
+  <Target Name="Clean" Condition="'$(OS)' != 'Windows_NT'">
+    <Exec Command="scons --clean vsproj=yes dev_build=yes"/>
   </Target>
 
-  <Target Name="Build">
-  	<Message Text="Building the project..." Importance="High" />
-  	<!-- Add your actual build commands here -->
-  </Target>
-
-  	<ItemDefinitionGroup>
-    	<ClCompile>
-      		<AdditionalIncludeDirectories>
-      			%%INCLUDES%%;
-      			%(AdditionalIncludeDirectories)
-      		</AdditionalIncludeDirectories>
-      		<PreprocessorDefinitions>%%DEFINES%%%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      	</ClCompile>
-   </ItemDefinitionGroup>
-
-<!--  <PropertyGroup>-->
-<!--       <StartAction>Program</StartAction>-->
-<!--       <StartProgram>%%StartProgram%%</StartProgram>-->
-<!--   &lt;!&ndash;    <StartArguments>optional</StartArguments>&ndash;&gt;-->
-<!--       <StartWorkingDirectory>./</StartWorkingDirectory>-->
-<!--  </PropertyGroup>-->
+  <ItemDefinitionGroup Condition="'$(OS)' != 'Windows_NT'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        %%INCLUDES%%;
+        %(AdditionalIncludeDirectories)
+      </AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>%%DEFINES%%%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
 </Project>
 <!-- CHECKSUM
 %%HASH%%
