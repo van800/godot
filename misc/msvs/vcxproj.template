@@ -10,16 +10,17 @@
     <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
   </PropertyGroup>
   %%PROPERTIES%%
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" Condition=" '$(OS)' == 'Windows_NT' "/>
   <PropertyGroup Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <PlatformToolset>Clang</PlatformToolset>
+    <DefaultPlatformToolset>Clang</DefaultPlatformToolset>
     <OutDir>$(SolutionDir)\bin\$(GodotPlatform)\$(GodotConfiguration)\</OutDir>
     <IntDir>obj\$(GodotPlatform)\$(GodotConfiguration)\</IntDir>
     <LayoutDir>$(OutDir)\Layout</LayoutDir>
   </PropertyGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition=" '$(OS)' == 'Windows_NT' "/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" Condition=" '$(PlatformToolset)' != 'Clang' "/>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" Condition=" '$(PlatformToolset)' != 'Clang' "/>
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets">
@@ -34,21 +35,21 @@
   <ItemGroup Condition="'$(IncludeListImported)'==''">
     %%DEFAULT_ITEMS%%
   </ItemGroup>
-  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition=" '$(OS)' == 'Windows_NT' " />
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" Condition=" '$(PlatformToolset)' != 'Clang' "/>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
 
-  <Target Name="Build" Condition="'$(OS)' != 'Windows_NT'">
+  <Target Name="Build" Condition=" '$(PlatformToolset)' == 'Clang' ">
     <Exec Command="scons vsproj=yes dev_build=yes"/>
   </Target>
-  <Target Name="Rebuild" Condition="'$(OS)' != 'Windows_NT'">
+  <Target Name="Rebuild" Condition=" '$(PlatformToolset)' == 'Clang' ">
     <Exec Command="scons --no-cache vsproj=yes dev_build=yes"/>
   </Target>
-  <Target Name="Clean" Condition="'$(OS)' != 'Windows_NT'">
+  <Target Name="Clean" Condition=" '$(PlatformToolset)' == 'Clang' ">
     <Exec Command="scons --clean vsproj=yes dev_build=yes"/>
   </Target>
 
-  <ItemDefinitionGroup Condition="'$(OS)' != 'Windows_NT'">
+  <ItemDefinitionGroup Condition=" '$(PlatformToolset)' == 'Clang' ">
     <ClCompile>
       <AdditionalIncludeDirectories>
         %%INCLUDES%%;
