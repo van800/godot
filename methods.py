@@ -1575,7 +1575,8 @@ def get_default_include_directories(env):
     stderr = output.stderr.read().decode()
     start = False
     paths = []
-    for line in stderr.split("\n"):
+    for line in stderr.splitlines():
+        line = line.strip()  # Remove leading/trailing spaces
         if not start:
             if line == "#include <...> search starts here:":
                 start = True
@@ -1583,6 +1584,5 @@ def get_default_include_directories(env):
             if line == "End of search list.":
                 break
             else:
-                paths.append(os.path.abspath(line[1:]))
-
+                paths.append(os.path.abspath(line))
     return paths
