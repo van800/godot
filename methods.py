@@ -1391,7 +1391,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
 
         proplist = [str(j) for j in env["CPPPATH"]]
         proplist += [str(j) for j in env.get("VSHINT_INCLUDES", [])]
-        proplist += [str(j) for j in get_default_include_directories()]
+        proplist += [str(j) for j in get_default_include_directories(env)]
         proj_template = proj_template.replace("%%INCLUDES%%", ";".join(proplist))
 
         proplist = [format_key_value(v) for v in list(env["CPPDEFINES"])]
@@ -1565,9 +1565,9 @@ def to_raw_cstring(value: Union[str, List[str]]) -> str:
     return " ".join(f'R"<!>({x.decode()})<!>"' for x in split)
 
 
-def get_default_include_directories():
+def get_default_include_directories(env):
     output = subprocess.Popen(
-        ["clang++", "-x", "c++", "-E", "-v", "-"],
+        [env["CXX"], "-x", "c++", "-E", "-v", "-"],
         stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.PIPE,
