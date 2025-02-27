@@ -1566,19 +1566,21 @@ def to_raw_cstring(value: Union[str, List[str]]) -> str:
 
 
 def get_default_include_directories():
-    output = subprocess.Popen(['clang++', '-x', 'c++', '-E', '-v', '-'],
-                              stdin=subprocess.DEVNULL,
-                              stdout=subprocess.DEVNULL,
-                              stderr=subprocess.PIPE)
+    output = subprocess.Popen(
+        ["clang++", "-x", "c++", "-E", "-v", "-"],
+        stdin=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+    )
     stderr = output.stderr.read().decode()
     start = False
     paths = []
-    for line in stderr.split('\n'):
+    for line in stderr.split("\n"):
         if not start:
-            if line == '#include <...> search starts here:':
+            if line == "#include <...> search starts here:":
                 start = True
         elif start:
-            if line == 'End of search list.':
+            if line == "End of search list.":
                 break
             else:
                 paths.append(os.path.abspath(line[1:]))
