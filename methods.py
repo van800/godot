@@ -1217,7 +1217,7 @@ def generate_vs_project(env, original_args, project_name="godot"):
             properties.append(
                 "<ActiveProjectItemList_%s>;%s;</ActiveProjectItemList_%s>" % (x, ";".join(itemlist[x]), x)
             )
-        output = f"bin\\godot{env['PROGSUFFIX']}"
+        output = os.path.join("bin", f"godot{env['PROGSUFFIX']}")
 
         with open("misc/msvs/props.template", "r", encoding="utf-8") as file:
             props_template = file.read()
