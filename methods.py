@@ -1389,10 +1389,11 @@ def generate_vs_project(env, original_args, project_name="godot"):
         proj_template = proj_template.replace("%%DEFAULT_ITEMS%%", "\n    ".join(all_items))
         proj_template = proj_template.replace("%%PROPERTIES%%", "\n  ".join(properties))
 
-        proplist = [str(j) for j in env["CPPPATH"]]
-        proplist += [str(j) for j in env.get("VSHINT_INCLUDES", [])]
-        proplist += [str(j) for j in get_default_include_directories(env)]
-        proj_template = proj_template.replace("%%INCLUDES%%", ";".join(proplist))
+        if not env.msvc:
+            proplist = [str(j) for j in env["CPPPATH"]]
+            proplist += [str(j) for j in env.get("VSHINT_INCLUDES", [])]
+            proplist += [str(j) for j in get_default_include_directories(env)]
+            proj_template = proj_template.replace("%%INCLUDES%%", ";".join(proplist))
 
         proplist = [format_key_value(v) for v in list(env["CPPDEFINES"])]
         proplist += [format_key_value(j) for j in env.get("VSHINT_DEFINES", [])]
