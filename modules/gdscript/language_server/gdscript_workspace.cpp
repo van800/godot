@@ -439,6 +439,7 @@ Error GDScriptWorkspace::parse_script(const String &p_path, const String &p_cont
 			memdelete(last_parser->value);
 		}
 		parse_results[p_path] = parser;
+		scripts[p_path] = parser;
 	}
 
 	publish_diagnostics(p_path);

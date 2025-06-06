@@ -71,6 +71,7 @@ public:
 	HashMap<String, ExtendGDScriptParser *> scripts;
 	HashMap<String, ExtendGDScriptParser *> parse_results;
 	HashMap<StringName, ClassMembers> native_members;
+	HashSet<String> opened_documents;
 
 public:
 	Error initialize();
