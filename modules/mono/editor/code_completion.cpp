@@ -139,6 +139,24 @@ PackedStringArray get_code_completion(CompletionKind p_kind, const String &p_scr
 					_add_nodes_suggestions(base, base, suggestions);
 				}
 			}
+			{
+				// Scene unique nodes
+				SceneTree *tree = SceneTree::get_singleton();
+				if (tree && tree->get_edited_scene_root()) {
+					Node *root = tree->get_edited_scene_root();
+					if (root) {
+						// Get unique nodes from the scene
+						for (int i = 0; i < root->get_child_count(); i++) {
+							Node *child = root->get_child(i);
+							if (child && !child->get_owner()) {
+								// This is a unique node (no owner)
+								suggestions.push_back(quoted("/root/" + child->get_name()));
+							}
+						}
+					}
+				}
+			}
+
 		} break;
 		case CompletionKind::RESOURCE_PATHS: {
 			if (bool(EDITOR_GET("text_editor/completion/complete_file_paths"))) {
