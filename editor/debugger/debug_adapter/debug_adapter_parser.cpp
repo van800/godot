@@ -197,32 +197,27 @@ Dictionary DebugAdapterParser::_launch_process(const Dictionary &p_params) const
 	if (platform_string == "host") {
 		EditorRunBar::get_singleton()->play_main_scene();
 	} else {
-		int device = args.get("device", -1);
-		int idx = -1;
-		if (platform_string == "android") {
-			for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
-				if (EditorExport::get_singleton()->get_export_platform(i)->get_name() == "Android") {
-					idx = i;
-					break;
-				}
-			}
-		} else if (platform_string == "web") {
-			for (int i = 0; i < EditorExport::get_singleton()->get_export_platform_count(); i++) {
-				if (EditorExport::get_singleton()->get_export_platform(i)->get_name() == "Web") {
-					idx = i;
-					break;
-				}
+		// minimal patch made from https://github.com/godotengine/godot/pull/109987/commits/5d9119fa01435b921edfdb6f50413951ff58c0af
+		int platform_idx = -1;
+		for (int j = 0; j < EditorExport::get_singleton()->get_export_platform_count(); j++) {
+			Ref<EditorExportPlatform> plat = EditorExport::get_singleton()->get_export_platform(j);
+			if (!plat.is_null() && plat->get_name().nocasecmp_to(platform_string) == 0) {
+				platform_idx = j;
+				break;
 			}
 		}
-
-		if (idx == -1) {
+		if (platform_idx == -1) {
 			return prepare_error_response(p_params, DAP::ErrorType::UNKNOWN_PLATFORM);
 		}
 
+		// if it is not passed, would mean first device of this platform
+		const int device_idx = args.get("device", 0);
+
 		EditorRunBar *run_bar = EditorRunBar::get_singleton();
-		Error err = platform_string == "android" ? run_bar->start_native_device(device * 10000 + idx) : run_bar->start_native_device(idx);
+		const int encoded_id = platform_idx * 10000 + device_idx;
+		const Error err = run_bar->start_native_device(encoded_id);
 		if (err) {
-			if (err == ERR_INVALID_PARAMETER && platform_string == "android") {
+			if (err == ERR_INVALID_PARAMETER) {
 				return prepare_error_response(p_params, DAP::ErrorType::MISSING_DEVICE);
 			} else {
 				return prepare_error_response(p_params, DAP::ErrorType::UNKNOWN);
