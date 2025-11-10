@@ -970,27 +970,15 @@ void DebugAdapterProtocol::notify_output(const String &p_message, RemoteDebugger
 bool DebugAdapterProtocol::run_by_dap_client(List<String> p_args, String p_exec, int p_instance_count)
 {
 	bool result = false;
-	String project_cwd = ProjectSettings::get_singleton()->get_resource_path();
 	// If DAP is active and supports RunInTerminal, request the client to run.
 	if (get_singleton()->is_active()) {
-		for (int i = 0; i < p_instance_count; i++) {
-			List instance_args(p_args);
-			RunInstancesDialog::get_singleton()->get_argument_list_for_instance(i, instance_args);
-			RunInstancesDialog::get_singleton()->apply_custom_features(i);
-			if (EditorRun::instance_starting_callback) {
-				EditorRun::instance_starting_callback(i, instance_args);
-			}
-
-			PackedStringArray full_args;
-			full_args.append(p_exec);
-			for (const String &E : instance_args) {
-				full_args.append(E);
-			}
-
-			if (request_run_in_terminal(full_args, "Godot Game", project_cwd, false)) {
-				result = true;
-			}
+		String project_cwd = ProjectSettings::get_singleton()->get_resource_path();
+		PackedStringArray args_array;
+		args_array.append(p_exec);
+		for (const String &arg : p_args) {
+			args_array.push_back(arg);
 		}
+		if (request_run_in_terminal(args_array, "Godot Game", project_cwd, true)) {result = true;}
 	}
 	return result;
 }
