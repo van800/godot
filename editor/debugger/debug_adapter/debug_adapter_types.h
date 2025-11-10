@@ -142,16 +142,17 @@ struct BreakpointLocation {
 };
 
 struct Capabilities {
-	bool supportsConfigurationDoneRequest = true;
-	bool supportsEvaluateForHovers = true;
-	bool supportsSetVariable = true;
-	String supportedChecksumAlgorithms[2] = { "MD5", "SHA256" };
-	bool supportsRestartRequest = true;
-	bool supportsValueFormattingOptions = true;
-	bool supportTerminateDebuggee = true;
-	bool supportSuspendDebuggee = true;
-	bool supportsTerminateRequest = true;
-	bool supportsBreakpointLocationsRequest = true;
+    bool supportsConfigurationDoneRequest = true;
+    bool supportsEvaluateForHovers = true;
+    bool supportsSetVariable = true;
+    String supportedChecksumAlgorithms[2] = { "MD5", "SHA256" };
+    bool supportsRestartRequest = true;
+    bool supportsValueFormattingOptions = true;
+    bool supportTerminateDebuggee = true;
+    bool supportSuspendDebuggee = true;
+    bool supportsTerminateRequest = true;
+    bool supportsBreakpointLocationsRequest = true;
+    bool supportsRunInTerminalRequest = true;
 
 	_FORCE_INLINE_ Dictionary to_json() const {
 		Dictionary dict;
@@ -162,8 +163,9 @@ struct Capabilities {
 		dict["supportsValueFormattingOptions"] = supportsValueFormattingOptions;
 		dict["supportTerminateDebuggee"] = supportTerminateDebuggee;
 		dict["supportSuspendDebuggee"] = supportSuspendDebuggee;
-		dict["supportsTerminateRequest"] = supportsTerminateRequest;
-		dict["supportsBreakpointLocationsRequest"] = supportsBreakpointLocationsRequest;
+  dict["supportsTerminateRequest"] = supportsTerminateRequest;
+  dict["supportsBreakpointLocationsRequest"] = supportsBreakpointLocationsRequest;
+  dict["supportsRunInTerminalRequest"] = supportsRunInTerminalRequest;
 
 		Array arr = { supportedChecksumAlgorithms[0], supportedChecksumAlgorithms[1] };
 		dict["supportedChecksumAlgorithms"] = arr;

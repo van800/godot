@@ -134,6 +134,7 @@ Dictionary DebugAdapterParser::req_initialize(const Dictionary &p_params) const 
 	peer->columnsStartAt1 = args.get("columnsStartAt1", false);
 	peer->supportsVariableType = args.get("supportsVariableType", false);
 	peer->supportsInvalidatedEvent = args.get("supportsInvalidatedEvent", false);
+	peer->supportsRunInTerminalRequest = args.get("supportsRunInTerminalRequest", false);
 
 	DAP::Capabilities caps;
 	response["body"] = caps.to_json();

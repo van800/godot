@@ -39,6 +39,7 @@
 #include "editor/editor_log.h"
 #include "editor/editor_node.h"
 #include "editor/run/editor_run_bar.h"
+#include "editor/run/run_instances_dialog.h"
 #include "editor/settings/editor_settings.h"
 
 DebugAdapterProtocol *DebugAdapterProtocol::singleton = nullptr;
@@ -58,7 +59,8 @@ Error DAPeer::handle_data() {
 			Error err = connection->get_partial_data(&req_buf[req_pos], 1, read);
 			if (err != OK) {
 				return FAILED;
-			} else if (read != 1) { // Busy, wait until next poll
+			} else if (read != 1) {
+				// Busy, wait until next poll
 				return ERR_BUSY;
 			}
 			char *r = (char *)req_buf;
@@ -963,6 +965,68 @@ void DebugAdapterProtocol::notify_output(const String &p_message, RemoteDebugger
 	for (const Ref<DAPeer> &peer : clients) {
 		peer->res_queue.push_back(event);
 	}
+}
+
+bool DebugAdapterProtocol::run_by_dap_client(List<String> p_args, String p_exec, int p_instance_count)
+{
+	bool result = false;
+	String project_cwd = ProjectSettings::get_singleton()->get_resource_path();
+	// If DAP is active and supports RunInTerminal, request the client to run.
+	if (get_singleton()->is_active()) {
+		for (int i = 0; i < p_instance_count; i++) {
+			List instance_args(p_args);
+			RunInstancesDialog::get_singleton()->get_argument_list_for_instance(i, instance_args);
+			RunInstancesDialog::get_singleton()->apply_custom_features(i);
+			if (EditorRun::instance_starting_callback) {
+				EditorRun::instance_starting_callback(i, instance_args);
+			}
+
+			PackedStringArray full_args;
+			full_args.append(p_exec);
+			for (const String &E : instance_args) {
+				full_args.append(E);
+			}
+
+			if (request_run_in_terminal(full_args, "Godot Game", project_cwd, false)) {
+				result = true;
+			}
+		}
+	}
+	return result;
+}
+
+
+bool DebugAdapterProtocol::request_run_in_terminal(const PackedStringArray &p_args, const String &p_title, const String &p_cwd, bool p_external) {
+	bool queued = false;
+
+	Dictionary request;
+	request["type"] = "request";
+	request["command"] = "runInTerminal";
+
+	Dictionary arguments;
+	arguments["kind"] = p_external ? String("external") : String("integrated");
+	if (!p_title.is_empty()) {
+		arguments["title"] = p_title;
+	}
+	if (!p_cwd.is_empty()) {
+		arguments["cwd"] = p_cwd;
+	}
+
+	Array args_arr;
+	for (int i = 0; i < p_args.size(); i++) {
+		args_arr.push_back(p_args[i]);
+	}
+	arguments["args"] = args_arr;
+
+	request["arguments"] = arguments;
+
+	for (const Ref<DAPeer> &peer : clients) {
+		if (peer->supportsRunInTerminalRequest) {
+			peer->res_queue.push_back(request);
+			queued = true;
+		}
+	}
+	return queued;
 }
 
 void DebugAdapterProtocol::notify_custom_data(const String &p_msg, const Array &p_data) {

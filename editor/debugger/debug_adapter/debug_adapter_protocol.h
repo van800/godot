@@ -59,6 +59,7 @@ struct DAPeer : RefCounted {
 	bool supportsVariableType = false;
 	bool supportsInvalidatedEvent = false;
 	bool supportsCustomData = false;
+	bool supportsRunInTerminalRequest = false;
 
 	// Internal client info
 	bool attached = false;
@@ -71,7 +72,6 @@ struct DAPeer : RefCounted {
 
 class DebugAdapterProtocol : public Object {
 	GDCLASS(DebugAdapterProtocol, Object)
-
 	friend class DebugAdapterParser;
 
 	using DAPVarID = int;
@@ -144,6 +144,7 @@ public:
 
 	_FORCE_INLINE_ static DebugAdapterProtocol *get_singleton() { return singleton; }
 	_FORCE_INLINE_ bool is_active() const { return _initialized && clients.size() > 0; }
+	bool request_run_in_terminal(const PackedStringArray &p_args, const String &p_title, const String &p_cwd, bool p_external = false);
 
 	bool process_message(const String &p_text);
 
@@ -160,6 +161,7 @@ public:
 	void notify_stopped_step();
 	void notify_continued();
 	void notify_output(const String &p_message, RemoteDebugger::MessageType p_type);
+	bool run_by_dap_client(List<String> p_args, String p_exec, int p_instance_count);
 	void notify_custom_data(const String &p_msg, const Array &p_data);
 	void notify_breakpoint(const DAP::Breakpoint &p_breakpoint, const bool &p_enabled);
 

@@ -38,6 +38,7 @@
 #include "editor/settings/editor_settings.h"
 #include "main/main.h"
 #include "servers/display/display_server.h"
+#include "editor/debugger/debug_adapter/debug_adapter_protocol.h"
 
 EditorRun::Status EditorRun::get_status() const {
 	return status;
@@ -159,29 +160,33 @@ Error EditorRun::run(const String &p_scene, const String &p_write_movie, const V
 
 	String exec = OS::get_singleton()->get_executable_path();
 	int instance_count = RunInstancesDialog::get_singleton()->get_instance_count();
-	for (int i = 0; i < instance_count; i++) {
-		List<String> instance_args(args);
-		RunInstancesDialog::get_singleton()->get_argument_list_for_instance(i, instance_args);
-		RunInstancesDialog::get_singleton()->apply_custom_features(i);
-		if (instance_starting_callback) {
-			instance_starting_callback(i, instance_args);
-		}
-
-		if (OS::get_singleton()->is_stdout_verbose()) {
-			PackedStringArray output;
-			output.reserve_exact(instance_args.size() + 1);
-			output.append(vformat("Running: %s", exec));
-			for (const String &E : instance_args) {
-				output.append(E);
+	
+	bool success = DebugAdapterProtocol::get_singleton()->run_by_dap_client(args, exec, instance_count);
+	if (!success) {
+		for (int i = 0; i < instance_count; i++) {
+			List<String> instance_args(args);
+			RunInstancesDialog::get_singleton()->get_argument_list_for_instance(i, instance_args);
+			RunInstancesDialog::get_singleton()->apply_custom_features(i);
+			if (instance_starting_callback) {
+				instance_starting_callback(i, instance_args);
 			}
-			print_line(String(" ").join(output));
-		}
 
-		OS::ProcessID pid = 0;
-		Error err = OS::get_singleton()->create_instance(instance_args, &pid);
-		ERR_FAIL_COND_V(err, err);
-		if (pid != 0) {
-			pids.push_back(pid);
+			if (OS::get_singleton()->is_stdout_verbose()) {
+				PackedStringArray output;
+				output.reserve_exact(instance_args.size() + 1);
+				output.append(vformat("Running: %s", exec));
+				for (const String &E : instance_args) {
+					output.append(E);
+				}
+				print_line(String(" ").join(output));
+			}
+
+			OS::ProcessID pid = 0;
+			Error err = OS::get_singleton()->create_instance(instance_args, &pid);
+			ERR_FAIL_COND_V(err, err);
+			if (pid != 0) {
+				pids.push_back(pid);
+			}
 		}
 	}
 
@@ -307,35 +312,49 @@ EditorRun::WindowPlacement EditorRun::get_window_placement() {
 		}
 
 		switch (window_placement) {
-			case 0: { // top left
+			case 0: {
+				// top left
 				placement.position = screen_rect.position;
-			} break;
-			case 1: { // centered
+			}
+			break;
+			case 1: {
+				// centered
 				placement.position = (screen_rect.position) + ((screen_rect.size - placement.size) / 2).floor();
-			} break;
-			case 2: { // custom pos
+			}
+			break;
+			case 2: {
+				// custom pos
 				Vector2 pos = EDITOR_GET("run/window_placement/rect_custom_position");
 				pos += screen_rect.position;
 				placement.position = pos;
-			} break;
-			case 3: { // force maximized
+			}
+			break;
+			case 3: {
+				// force maximized
 				placement.force_maximized = true;
 				placement.position = (screen_rect.position) + ((screen_rect.size - placement.size) / 2).floor();
-			} break;
-			case 4: { // force fullscreen
+			}
+			break;
+			case 4: {
+				// force fullscreen
 				placement.force_fullscreen = true;
 				placement.position = (screen_rect.position) + ((screen_rect.size - placement.size) / 2).floor();
-			} break;
+			}
+			break;
 		}
 	} else {
 		// Unable to get screen info, skip setting position.
 		switch (window_placement) {
-			case 3: { // force maximized
+			case 3: {
+				// force maximized
 				placement.force_maximized = true;
-			} break;
-			case 4: { // force fullscreen
+			}
+			break;
+			case 4: {
+				// force fullscreen
 				placement.force_fullscreen = true;
-			} break;
+			}
+			break;
 		}
 	}
 
